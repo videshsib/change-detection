@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "66694da78ca393e36003dd2c",
+    "name": "videsh",
+    "automation_1_brevo_custom_input": {
+      "label": "send an email",
+      "specification_text": "this is required",
+      "type": "number",
+      "isRequired": true,
+      "style": {
+        "padding": "24px",
+        "margin": "16px",
+        "display": "flex",
+        "justify-content": "center",
+        "name": "vibhor"
+      }
+    },
+    "automation_custom_3": {
+      "time": "5:53"
+    }
+  }
+]

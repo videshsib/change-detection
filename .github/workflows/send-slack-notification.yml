@@ -1,0 +1,55 @@
+name: Conditional Pull Request Workflow
+
+on:
+  workflow_run:
+    workflows: ["Create Pull Request"]
+    types:
+      - completed
+
+jobs:
+  run_if:
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Pull Request Information
+        id: fetch-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commits = await github.request('GET /repos/{owner}/{repo}/pulls', {
+                                                  owner: context.repo.owner,
+                                                  repo: context.repo.repo,
+                                                  headers: {
+                                                    'X-GitHub-Api-Version': '2022-11-28'
+                                                    }
+                                                })
+             if(commits?.data?.length > 0) {
+               const pr = commits.data?.[0];
+               core.setOutput('pr_url', pr.html_url);
+              } else {
+                 throw new Error('Pull request not found');
+               }                                 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print PR URL
+        run: |
+          echo "Pull Request URL: ${{ steps.fetch-pr.outputs.pr_url }}"
+
+      - name: Send Slack Notification
+        uses: act10ns/slack@v2
+        with:
+          status: starting
+          channel: '#change-detection'
+          message: |
+            DDl Data has been updated. Please review the changes.:
+            Repository: ${{ github.repository }}
+            Pull Request: ${{ steps.fetch-pr.outputs.pr_url }}
+            Title: DDl Update
+            Body: Please review changes in the pull request
+        if: always()

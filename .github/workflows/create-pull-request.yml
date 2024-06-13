@@ -1,0 +1,23 @@
+name: Create Pull Request
+
+on:
+  push:
+    branches:
+      - 'update-document-*'
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: create pull request
+        run: gh pr create -B master -H ${{ github.ref }} --title 'Merge ${{ github.ref }} into master' --body 'Created by Github action'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
